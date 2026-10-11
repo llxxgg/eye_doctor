@@ -14,9 +14,8 @@ from eye_doctor.utils import load_prompts_from_file  # noqa: F401  (kept for fut
 class ChatInterface:
     """A chat interface for interacting with an ophthalmology AI agent through Gradio."""
 
-    def __init__(self, agent, tools_dict):
+    def __init__(self, agent):
         self.agent = agent
-        self.tools_dict = tools_dict
         self.upload_dir = Path("temp")
         self.upload_dir.mkdir(exist_ok=True)
         self.current_thread_id = None
@@ -148,12 +147,12 @@ class ChatInterface:
             yield chat_history, self.display_file_path
 
 
-def create_demo(agent, tools_dict):
+def create_demo(agent):
     """Create the Gradio Blocks demo for the ophthalmology agent."""
 
-    interface = ChatInterface(agent, tools_dict)
+    interface = ChatInterface(agent)
 
-    with gr.Blocks(theme=gr.themes.Soft()) as demo:
+    with gr.Blocks() as demo:
         with gr.Column():
             gr.Markdown(
                 """

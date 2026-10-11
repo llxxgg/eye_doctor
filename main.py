@@ -7,11 +7,11 @@ environment (or in a local .env file).
 
 import os
 import warnings
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
+import gradio as gr
 import openai
 from dotenv import load_dotenv
-from langchain_core.tools import BaseTool
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 
@@ -30,7 +30,7 @@ def initialize_agent(
     temperature: float = 0.7,
     top_p: float = 0.95,
     openai_kwargs: Dict[str, Any] = None,
-) -> Tuple[Agent, Dict[str, BaseTool]]:
+) -> Agent:
     """Initialise the eye_doctor agent with the ImageVisualizerTool.
 
     Args:
@@ -44,14 +44,14 @@ def initialize_agent(
             variables.
 
     Returns:
-        tuple[Agent, Dict[str, BaseTool]]: initialised agent and tool dictionary.
+        Agent: initialised agent.
     """
     prompts = load_prompts_from_file(prompt_file)
     prompt = prompts["MEDICAL_ASSISTANT"]
 
-    tools_dict = {
-        "ImageVisualizerTool": ImageVisualizerTool(),
-    }
+    tools = [
+        ImageVisualizerTool(),
+    ]
 
     if openai_kwargs is None:
         openai_kwargs = {}
@@ -65,7 +65,7 @@ def initialize_agent(
 
     agent = Agent(
         chat_model,
-        tools=list(tools_dict.values()),
+        tools=tools,
         log_tools=True,
         log_dir="logs",
         system_prompt=prompt,
@@ -73,7 +73,7 @@ def initialize_agent(
     )
 
     print("Agent initialized")
-    return agent, tools_dict
+    return agent
 
 
 if __name__ == "__main__":
@@ -81,9 +81,8 @@ if __name__ == "__main__":
     model = os.getenv("EYE_DOCTOR_MODEL", "gpt-4o")
 
     agent: Optional[Agent] = None
-    tools_dict: Dict[str, BaseTool] = {}
     try:
-        agent, tools_dict = initialize_agent(
+        agent = initialize_agent(
             prompt_file="eye_doctor/docs/system_prompts.txt",
             model=model,
             temperature=0.7,
@@ -97,5 +96,5 @@ if __name__ == "__main__":
         )
         print(f"   Underlying error: {e}")
 
-    demo = create_demo(agent, tools_dict)
-    demo.launch(server_name="0.0.0.0", server_port=8585, share=False)
+    demo = create_demo(agent)
+    demo.launch(server_name="0.0.0.0", server_port=8585, share=False, theme=gr.themes.Soft())
