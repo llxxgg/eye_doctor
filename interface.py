@@ -101,7 +101,7 @@ class ChatInterface:
                             tool_result = eval(message.content)[0]
 
                             if tool_result:
-                                metadata = {"title": f"🖥️ Image from tool: {tool_name}"}
+                                metadata = {"title": f"🖼️ Image from tool: {tool_name}"}
                                 formatted_result = " ".join(
                                     line.strip() for line in str(tool_result).splitlines()
                                 ).strip()
