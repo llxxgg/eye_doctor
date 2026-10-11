@@ -28,7 +28,7 @@ README 中说明目标是"通过眼科图像识别病因并给出医疗建议"�
 |---|---|---|
 | `Agent` 类（含 `AgentState`、`ToolCallLog`） | `MedRAX/medrax/agent/agent.py` | 原样迁移 |
 | `ImageVisualizerTool` | `MedRAX/medrax/tools/utils.py` 中定义 | 原样迁移到一个独立文件 |
-| `load_prompts_from_file` 等提示加载工具 | `MedRAX/medrax/utils/utils.py` | 原样迁移 |
+| `load_prompts_from_file`、`load_tool_prompts` | `MedRAX/medrax/utils/utils.py` | 原样迁移 |
 | `interface.py` 中的 `ChatInterface` 和 `create_demo` | `MedRAX/interface.py` | 迁移并替换眼科主题文案 |
 | `main.py` 中的 `initialize_agent` 入口 | `MedRAX/main.py` | 迁移，**移除 8 个工具的初始化分支**，只注册 ImageVisualizerTool |
 | `system_prompts.txt` | `MedRAX/medrax/docs/system_prompts.txt` | 文本改写：MEDICAL_ASSISTANT 改为眼科图像（OCT、眼底图、视网膜图像） |
@@ -39,8 +39,8 @@ README 中说明目标是"通过眼科图像识别病因并给出医疗建议"�
   `XRayVQATool`、`ChestXRayReportGeneratorTool`、`XRayPhraseGroundingTool`
   `ChestXRayGeneratorTool`、`DicomProcessorTool` 八个工具类（依赖重型 ML 库）。
 - `medrax/llava/` 目录（含模型加载逻辑）。
-- `benchmark/`、`experiments/`、`data/`、`demo/`、`assets/`、`quickstart.py`。
-- 不复制 `assets/medrax_logo.jpg`（版权与归属原因），前端头像位留空或指向本地占位文件。
+- `benchmark/`、`experiments/`、`data/`、`demo/`、`quickstart.py`。
+- `assets/medrax_logo.jpg` 单独看待，见第 4.5 节备注。
 
 ---
 
@@ -64,6 +64,8 @@ eye_doctor/
 │   │   └── utils.py                       来自 MedRAX/medrax/utils/utils.py
 │   └── docs/
 │       └── system_prompts.txt             改写为眼科主题
+├── assets/                                新建（仅 logo）
+│   └── medrax_logo.jpg                    来自 MedRAX/assets/medrax_logo.jpg
 ├── pyproject.toml                         新建
 ├── .env.example                           新建
 ├── .gitignore                             新建
@@ -101,9 +103,13 @@ eye_doctor/
 
 ### 4.3 `eye_doctor/utils/utils.py`
 
-仅迁移 `load_prompts_from_file` 一个函数。其他 `load_tool_prompts` /
-`load_system_prompt` 暂时不必要（MedRAX 内部工具多时才需要动态拼装工具说明，
-目前只有一个工具时硬编码到 `system_prompts.txt` 即可），**不迁移以减少死代码**。
+迁移 `load_prompts_from_file` 和 `load_tool_prompts` 两个函数。
+`load_system_prompt` 暂时不需要（多工具时才需要动态拼装工具说明，目前只有一个工具
+硬编码到 `system_prompts.txt` 即可），**不迁移以减少死代码**。
+
+`load_tool_prompts` 读取 `tools.json` 中的工具元信息。本次迁移**不创建**该 JSON
+文件，因为只有一个工具，硬编码进 `system_prompts.txt` 已经足够。
+`load_tool_prompts` 作为扩展点保留，便于后续添加工具时直接使用。
 
 ### 4.4 `eye_doctor/docs/system_prompts.txt`
 
@@ -129,7 +135,7 @@ of tasks and questions, providing accurate and useful information.
 | Markdown 标题 | `# 🏥 MedRAX\nMedical Reasoning Agent for Chest X-ray` | `# 👁️ eye_doctor\nOphthalmology Diagnosis Agent` |
 | Textbox placeholder | `Ask about the X-ray...` | `Ask about the ophthalmic image...` |
 | 上传按钮 | `📎 Upload X-Ray` / `📄 Upload DICOM` | `📎 Upload Fundus` / `📄 Upload OCT` |
-| Avatar image path | `assets/medrax_logo.jpg` | 留空（不引用具体图片） |
+| Avatar image path | `assets/medrax_logo.jpg`（MedRAX 原文件） | 暂时迁过来，作为 `assets/medrax_logo.jpg` 在 eye_doctor 中复用 |
 | 工具键引用 | `tools_dict["DicomProcessorTool"]` | 删除该分支（眼科场景下 DICOM 不是必须） |
 
 > **保留** `DicomProcessorTool` 的 DICOM 转换分支对应的代码会被删除：
@@ -261,7 +267,7 @@ process_message 异步生成器
   / `add_conditional_edges` / `compile` API 稳定）。
 - **DICOM 用户**：迁移版不内置 DICOM 处理。若上传 `.dcm`，前端会显示原路径但
   浏览器不能预览。README 中标注为限制。
-- **avatar 图片**：不引入 MedRAX logo；`avatar_images=(None, ...)` 中第二个值留 `None`。
+- **avatar 图片**：暂时复用 MedRAX 的 `assets/medrax_logo.jpg`，后续如有版权 / 品牌诉求再替换为 eye_doctor 自有 logo。
 
 ---
 
