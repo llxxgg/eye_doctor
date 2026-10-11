@@ -36,7 +36,7 @@ cp .env.example .env
 | ------------------ | -------- | --------------------------- | ------------------------------------------------------------ |
 | `OPENAI_API_KEY`   | yes      | —                           | OpenAI-compatible API key. The app still launches without it, but agent calls will fail. |
 | `OPENAI_BASE_URL`  | no       | `https://api.openai.com/v1` | Any OpenAI-compatible base URL (proxies, local LLMs, etc.).  |
-| `EYE_DOCTOR_MODEL` | no       | `gpt-4o`                    | Model name passed to `ChatOpenAI`.                           |
+| `OPENAI_MODEL_NAME` | no      | `gpt-4o`                    | Model name passed to `ChatOpenAI`.                           |
 
 ## Usage
 
