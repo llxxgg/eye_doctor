@@ -58,7 +58,7 @@ The project is split into three layers:
 - **Tool layer** (`eye_doctor/tools/`): pluggable `BaseTool` implementations. Only `ImageVisualizerTool` is wired up today; new tools can be registered in `main.py`'s `tools_dict`.
 - **Interface layer** (`interface.py`): a Gradio `Blocks` demo that handles image uploads, base64-encodes them for the multimodal model, and renders streamed agent events as chat messages.
 
-System prompts for the agent (and a generic fallback) live in `eye_doctor/docs/system_prompts.txt`.
+System prompts for the agent (and a generic fallback) live in `eye_doctor/prompts/system_prompts.txt`.
 
 ## Limitations
 
@@ -85,7 +85,7 @@ eye_doctor/
 │   │   └── image_visualizer.py      # ImageVisualizerTool
 │   ├── utils/
 │   │   └── utils.py                 # load_prompts_from_file helpers
-│   └── docs/
+│   └── prompts/
 │       └── system_prompts.txt       # MEDICAL_ASSISTANT & GENERAL_ASSISTANT
 ├── logs/                            # Agent tool-call log output
 └── temp/                            # Upload staging directory
