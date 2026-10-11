@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 
-from interface import create_demo
+from interface import build_application
 from eye_doctor.agent import Agent
 from eye_doctor.tools import ImageVisualizerTool
 from eye_doctor.utils import load_prompts_from_file
@@ -78,12 +78,12 @@ def initialize_agent(
 
 if __name__ == "__main__":
     print("Starting server...")
-    model = os.getenv("EYE_DOCTOR_MODEL", "gpt-4o")
+    model = os.getenv("OPENAI_MODEL_NAME", "gpt-4o")
 
     agent: Optional[Agent] = None
     try:
         agent = initialize_agent(
-            prompt_file="eye_doctor/docs/system_prompts.txt",
+            prompt_file="eye_doctor/prompts/system_prompts.txt",
             model=model,
             temperature=0.7,
             top_p=0.95,
@@ -96,5 +96,5 @@ if __name__ == "__main__":
         )
         print(f"   Underlying error: {e}")
 
-    demo = create_demo(agent)
-    demo.launch(server_name="0.0.0.0", server_port=8585, share=False, theme=gr.themes.Soft())
+    demo = build_application(agent)
+    demo.launch(server_name="0.0.0.0", server_port=8090, share=False, theme=gr.themes.Soft())

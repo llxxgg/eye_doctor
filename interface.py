@@ -147,8 +147,8 @@ class ChatInterface:
             yield chat_history, self.display_file_path
 
 
-def create_demo(agent):
-    """Create the Gradio Blocks demo for the ophthalmology agent."""
+def build_application(agent):
+    """Build the Gradio Blocks application for the ophthalmology agent."""
 
     interface = ChatInterface(agent)
 
