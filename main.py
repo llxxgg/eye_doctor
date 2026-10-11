@@ -1,0 +1,88 @@
+"""eye_doctor — entry point.
+
+Initialises the Agent with the ImageVisualizerTool and launches the Gradio demo.
+Requires an OpenAI-compatible API key supplied via OPENAI_API_KEY in the
+environment (or in a local .env file).
+"""
+
+import os
+import warnings
+from typing import Any, Dict, Tuple
+
+from dotenv import load_dotenv
+from langchain_core.tools import BaseTool
+from langchain_openai import ChatOpenAI
+from langgraph.checkpoint.memory import MemorySaver
+
+from interface import create_demo
+from eye_doctor.agent import Agent
+from eye_doctor.tools import ImageVisualizerTool
+from eye_doctor.utils import load_prompts_from_file
+
+warnings.filterwarnings("ignore")
+_ = load_dotenv()
+
+
+def initialize_agent(
+    prompt_file: str,
+    model: str = "gpt-4o",
+    temperature: float = 0.7,
+    top_p: float = 0.95,
+    openai_kwargs: Dict[str, Any] = None,
+) -> Tuple[Agent, Dict[str, BaseTool]]:
+    """Initialise the eye_doctor agent with the ImageVisualizerTool.
+
+    Args:
+        prompt_file (str): Path to the system prompts file.
+        model (str): OpenAI model name.
+        temperature (float): Sampling temperature.
+        top_p (float): Sampling top-p.
+        openai_kwargs (dict, optional): extra kwargs forwarded to ``ChatOpenAI``
+            (e.g. ``api_key``, ``base_url``). If ``None``, these are collected
+            from the ``OPENAI_API_KEY`` and ``OPENAI_BASE_URL`` environment
+            variables.
+
+    Returns:
+        tuple[Agent, Dict[str, BaseTool]]: initialised agent and tool dictionary.
+    """
+    prompts = load_prompts_from_file(prompt_file)
+    prompt = prompts["MEDICAL_ASSISTANT"]
+
+    tools_dict = {
+        "ImageVisualizerTool": ImageVisualizerTool(),
+    }
+
+    if openai_kwargs is None:
+        openai_kwargs = {}
+        if api_key := os.getenv("OPENAI_API_KEY"):
+            openai_kwargs["api_key"] = api_key
+        if base_url := os.getenv("OPENAI_BASE_URL"):
+            openai_kwargs["base_url"] = base_url
+
+    checkpointer = MemorySaver()
+    chat_model = ChatOpenAI(model=model, temperature=temperature, top_p=top_p, **openai_kwargs)
+
+    agent = Agent(
+        chat_model,
+        tools=list(tools_dict.values()),
+        log_tools=True,
+        log_dir="logs",
+        system_prompt=prompt,
+        checkpointer=checkpointer,
+    )
+
+    print("Agent initialized")
+    return agent, tools_dict
+
+
+if __name__ == "__main__":
+    print("Starting server...")
+    model = os.getenv("EYE_DOCTOR_MODEL", "gpt-4o")
+    agent, tools_dict = initialize_agent(
+        prompt_file="eye_doctor/docs/system_prompts.txt",
+        model=model,
+        temperature=0.7,
+        top_p=0.95,
+    )
+    demo = create_demo(agent, tools_dict)
+    demo.launch(server_name="0.0.0.0", server_port=8585, share=False)
