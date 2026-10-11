@@ -156,7 +156,6 @@ def create_demo(agent, tools_dict):
                         container=True,
                         show_label=True,
                         elem_classes="chat-box",
-                        type="messages",
                         label="Agent",
                         avatar_images=(
                             None,
