@@ -84,6 +84,8 @@ class ImageVisualizerTool(BaseTool):
             if not Path(image_path).is_file():
                 raise FileNotFoundError(f"Image file not found: {image_path}")
 
+            # Image display is intentionally not invoked here — matplotlib's plt.show() blocks headless / non-interactive runtimes.
+            # self._display_image(image_path, title, description, figsize, cmap)
             output = {"image_path": image_path}
             metadata = {
                 "image_path": image_path,
