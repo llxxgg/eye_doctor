@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+./docs/superpowers
 
 # Distribution / packaging
 .Python
@@ -29,3 +30,4 @@ temp/
 
 # OS
 .DS_Store
+.gstack/
