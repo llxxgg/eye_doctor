@@ -7,8 +7,9 @@ environment (or in a local .env file).
 
 import os
 import warnings
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Optional, Tuple
 
+import openai
 from dotenv import load_dotenv
 from langchain_core.tools import BaseTool
 from langchain_openai import ChatOpenAI
@@ -78,11 +79,23 @@ def initialize_agent(
 if __name__ == "__main__":
     print("Starting server...")
     model = os.getenv("EYE_DOCTOR_MODEL", "gpt-4o")
-    agent, tools_dict = initialize_agent(
-        prompt_file="eye_doctor/docs/system_prompts.txt",
-        model=model,
-        temperature=0.7,
-        top_p=0.95,
-    )
+
+    agent: Optional[Agent] = None
+    tools_dict: Dict[str, BaseTool] = {}
+    try:
+        agent, tools_dict = initialize_agent(
+            prompt_file="eye_doctor/docs/system_prompts.txt",
+            model=model,
+            temperature=0.7,
+            top_p=0.95,
+        )
+    except (openai.OpenAIError, ValueError, KeyError) as e:
+        print(
+            "⚠️  No OPENAI_API_KEY found (or key is invalid). "
+            "UI will load but agent calls will fail. "
+            "Set OPENAI_API_KEY in .env or env vars and restart."
+        )
+        print(f"   Underlying error: {e}")
+
     demo = create_demo(agent, tools_dict)
     demo.launch(server_name="0.0.0.0", server_port=8585, share=False)

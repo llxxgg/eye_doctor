@@ -58,6 +58,20 @@ class ChatInterface:
     ) -> AsyncGenerator[Tuple[List[ChatMessage], Optional[str], str], None]:
         chat_history = chat_history or []
 
+        if self.agent is None:
+            chat_history.append(
+                ChatMessage(
+                    role="assistant",
+                    content=(
+                        "❌ Agent unavailable: OPENAI_API_KEY is not configured. "
+                        "Set it in .env or env vars and restart."
+                    ),
+                    metadata={"title": "Error"},
+                )
+            )
+            yield chat_history, None, ""
+            return
+
         if not self.current_thread_id:
             self.current_thread_id = str(time.time())
 
