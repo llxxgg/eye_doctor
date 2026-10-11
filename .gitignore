@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-./docs/superpowers
 
 # Distribution / packaging
 .Python
@@ -11,6 +10,7 @@ develop-eggs/
 dist/
 *.egg-info/
 *.egg
+./docs/superpowers
 
 # Environments
 .env
