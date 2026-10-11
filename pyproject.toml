@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eye-doctor"
+version = "0.1.0"
+description = "Ophthalmology diagnosis agent"
+requires-python = ">=3.10,<3.15"
+dependencies = [
+  "langgraph>=0.2.0",
+  "langchain-core>=0.3.0",
+  "langchain-openai>=0.2.0",
+  "gradio>=5.0",
+  "pydantic>=2.5",
+  "matplotlib>=3.8",
+  "scikit-image>=0.22",
+  "python-dotenv>=1.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["eye_doctor*"]
+exclude = ["tests_smoke*", "docs*"]
